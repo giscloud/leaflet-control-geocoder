@@ -1,4 +1,5 @@
 (function (factory) {
+    console.log(giscloud);
 	// Packaging/modules magic dance
 	var L;
 	if (typeof define === 'function' && define.amd) {
@@ -9,10 +10,13 @@
 		L = require('leaflet');
 		module.exports = factory(L);
 	} else {
-		// Browser globals
-		if (typeof window.L === 'undefined')
-			throw 'Leaflet must be loaded first';
-		factory(window.L);
+        giscloud.common().deferreds.leafletLoading.done(function() {
+            L = window.L || giscloud.exposeLeaflet();
+		    // Browser globals
+		    if (typeof L === 'undefined')
+			    console.log( 'Leaflet must be loaded first' );
+		    factory(L);
+        });
 	}
 }(function (L) {
 	'use strict';
@@ -33,6 +37,10 @@
 			if (!this.options.geocoder) {
 				this.options.geocoder = new L.Control.Geocoder.Nominatim();
 			}
+
+            if (this.options.geocoder=="google") {
+                this.options.geocoder = new L.Control.Geocoder.Google(this);
+            }
 		},
 
 		onAdd: function (map) {
@@ -45,7 +53,9 @@
 			this._map = map;
 			this._container = container;
 			input = this._input = L.DomUtil.create('input');
+			input.id = 'leaflet_geocoder_input';
 			input.type = 'text';
+			input.className = 'leaflet-geocoder-input';
 
 			L.DomEvent.addListener(input, 'keydown', this._keydown, this);
 			//L.DomEvent.addListener(input, 'onpaste', this._clearResults, this);
@@ -102,7 +112,7 @@
 		},
 
 		markGeocode: function(result) {
-			this._map.fitBounds(result.bbox);
+			if (result.bbox) this._map.fitBounds(result.bbox);
 
 			if (this._geocodeMarker) {
 				this._map.removeLayer(this._geocodeMarker);
@@ -152,6 +162,7 @@
 			this._container.className = this._container.className.replace(' leaflet-control-geocoder-expanded', '');
 			L.DomUtil.addClass(this._alts, 'leaflet-control-geocoder-alternatives-minimized');
 			L.DomUtil.removeClass(this._errorElement, 'leaflet-control-geocoder-error');
+            if (this._geocodeMarker) this._map.removeLayer(this._geocodeMarker);
 		},
 
 		_clearResults: function () {
@@ -289,6 +300,80 @@
 
 	L.Control.Geocoder.nominatim = function(options) {
 		return new L.Control.Geocoder.Nominatim(options);
+	};
+
+	L.Control.Geocoder.Google = L.Class.extend({
+
+        onPlaceChanged: function() {
+            var place = this.autocomplete.getPlace();
+            //console.log(place);
+            // console.log(place.geometry.location);
+
+            if (!place.geometry || !place.geometry.location) {
+                return;
+            }
+
+            var x = place.geometry.location.A, y = place.geometry.location.k,
+            wgs84 = new Proj4js.Proj("WGS84"),
+            p = new Proj4js.Point(x+","+y);
+
+            Proj4js.transform(wgs84, giscloud.ui.map.projection, p);
+            gcapp.gcmap.smartSetLocation({__xmin: p.x, __xmax: p.x, __ymin: p.y, __ymax: p.y});
+
+			var result = {
+				icon: null,
+				name: place.name,
+				//bbox: L.latLngBounds([y, x], [y, x]),
+				center: L.latLng(y, x)
+			};
+			this.parent.markGeocode(result);
+        },
+
+		initialize: function(parentControl) {
+            var that = this;
+            this.parent = parentControl;
+
+            giscloud.Viewer.__googleMapsApiLoaded.done(function() {
+
+                if (!window.google) {
+                    console.log("Google map API is not loaded.");
+                }
+
+                (function() {
+                    var gsearch_input = document.getElementById('leaflet_geocoder_input'),
+                    goptions = {
+                        //bounds: defaultBounds,
+                        //types: ['establishment']
+                    }, i, lyr,
+                    gmap;
+
+                    for (i in giscloud.ui.map.layers) {
+                        lyr = giscloud.ui.map.layers[i];
+                        if ( jQuery.inArray(lyr.source, ["gmaps"])>=0 ) {
+                            gmap = lyr.instance._google;
+                            break;
+                        }
+                    }
+
+                    gsearch_input.value = '';
+
+                    var autocomplete = that.autocomplete = new google.maps.places.Autocomplete(gsearch_input, goptions);
+                    autocomplete.bindTo('bounds', gmap);
+                    //var places = new google.maps.places.PlacesService(gmap);
+                    google.maps.event.addListener(autocomplete, 'place_changed',
+                                                  that.onPlaceChanged.bind(that));
+                }).delay(2000);
+            })
+		},
+
+        geocode: function(query, cb, context) {
+            L.DomUtil.removeClass(context._container, 'leaflet-control-geocoder-throbber');
+        }
+
+	});
+
+	L.Control.Geocoder.google = function(key) {
+		return new L.Control.Geocoder.Google(key);
 	};
 
 	L.Control.Geocoder.Bing = L.Class.extend({
