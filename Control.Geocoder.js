@@ -1,5 +1,4 @@
 (function (factory) {
-    console.log(giscloud);
 	// Packaging/modules magic dance
 	var L;
 	if (typeof define === 'function' && define.amd) {
@@ -46,7 +45,7 @@
 		onAdd: function (map) {
 			var className = 'leaflet-control-geocoder',
 			    container = L.DomUtil.create('div', className),
-				icon = L.DomUtil.create('div', 'leaflet-control-geocoder-icon', container),
+				icon = this._icon = L.DomUtil.create('div', 'leaflet-control-geocoder-icon gc-vicon gc-vicon-search', container),
 			    form = this._form = L.DomUtil.create('form', className + '-form', container),
 			    input;
 
@@ -155,10 +154,15 @@
 
 		_expand: function () {
 			L.DomUtil.addClass(this._container, 'leaflet-control-geocoder-expanded');
+			L.DomUtil.addClass(this._form, 'leaflet-control-display-inline');
+			L.DomUtil.addClass(this._icon, 'gc-vicon-remove');
 			this._input.select();
 		},
 
 		_collapse: function () {
+			L.DomUtil.removeClass(this._form, 'leaflet-control-display-inline');
+            L.DomUtil.removeClass(this._icon, 'gc-vicon-remove');
+
 			this._container.className = this._container.className.replace(' leaflet-control-geocoder-expanded', '');
 			L.DomUtil.addClass(this._alts, 'leaflet-control-geocoder-alternatives-minimized');
 			L.DomUtil.removeClass(this._errorElement, 'leaflet-control-geocoder-error');
@@ -338,6 +342,8 @@
                 if (!window.google) {
                     console.log("Google map API is not loaded.");
                 }
+
+                L.DomUtil.addClass(parentControl._container, 'leaflet-control-display-block');
 
                 (function() {
                     var gsearch_input = document.getElementById('leaflet_geocoder_input'),
