@@ -337,7 +337,8 @@
             var that = this;
             this.parent = parentControl;
 
-            giscloud.Viewer.__googleMapsApiLoaded.done(function() {
+            //giscloud.Viewer.__googleMapsApiLoaded.done(function() {
+            giscloud.__googleMapsApiLoadedGeocoder = function() {
 
                 if (!window.google) {
                     console.log("Google map API is not loaded.");
@@ -364,12 +365,17 @@
                     gsearch_input.value = '';
 
                     var autocomplete = that.autocomplete = new google.maps.places.Autocomplete(gsearch_input, goptions);
-                    autocomplete.bindTo('bounds', gmap);
+                    //autocomplete.bindTo('bounds', gmap);
                     //var places = new google.maps.places.PlacesService(gmap);
                     google.maps.event.addListener(autocomplete, 'place_changed',
                                                   that.onPlaceChanged.bind(that));
-                }).delay(2000);
-            })
+
+                }).delay(500);
+            };
+
+            giscloud.includeJs(
+                (window.location.protocol == "https:" ? "https:" : "http:") +
+                    "//maps.googleapis.com/maps/api/js?libraries=places&sensor=true&callback=giscloud.__googleMapsApiLoadedGeocoder");
 		},
 
         geocode: function(query, cb, context) {
