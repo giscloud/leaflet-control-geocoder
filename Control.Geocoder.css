@@ -65,6 +65,7 @@
     text-align: center;
 	float: right;
 	cursor: pointer;
+    margin-left: -1px;
 }
 
 .leaflet-control-geocoder-expanded .leaflet-control-geocoder-icon{

@@ -45,7 +45,7 @@
 		onAdd: function (map) {
 			var className = 'leaflet-control-geocoder',
 			    container = L.DomUtil.create('div', className),
-				icon = this._icon = L.DomUtil.create('div', 'leaflet-control-geocoder-icon gc-vicon gc-vicon-search', container),
+				icon = this._icon = L.DomUtil.create('div', 'leaflet-control-geocoder-icon fa fa-search', container),
 			    form = this._form = L.DomUtil.create('form', className + '-form', container),
 			    input;
 
