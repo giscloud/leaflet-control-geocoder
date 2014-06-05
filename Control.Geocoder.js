@@ -118,7 +118,7 @@
 			}
 
 			this._geocodeMarker = new L.Marker(result.center)
-				.bindPopup(result.name)
+				.bindPopup("<div style='margin: 14px 20px;' >"+result.name+"</div>")
 				.addTo(this._map)
 				.openPopup();
 
@@ -310,7 +310,7 @@
 
         onPlaceChanged: function() {
             var place = this.autocomplete.getPlace();
-            //console.log(place);
+            console.log(place);
             // console.log(place.geometry.location);
 
             if (!place.geometry || !place.geometry.location) {
@@ -326,7 +326,7 @@
 
 			var result = {
 				icon: null,
-				name: place.name,
+				name: place.formatted_address,
 				//bbox: L.latLngBounds([y, x], [y, x]),
 				center: L.latLng(y, x)
 			};
