@@ -310,14 +310,14 @@
 
         onPlaceChanged: function() {
             var place = this.autocomplete.getPlace();
-            console.log(place);
+            //console.log(place);
             // console.log(place.geometry.location);
 
             if (!place.geometry || !place.geometry.location) {
                 return;
             }
 
-            var x = place.geometry.location.A, y = place.geometry.location.k,
+            var x = place.geometry.location.B, y = place.geometry.location.k,
             wgs84 = new Proj4js.Proj("WGS84"),
             p = new Proj4js.Point(x+","+y);
 
