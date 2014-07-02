@@ -155,13 +155,15 @@
 		_expand: function () {
 			L.DomUtil.addClass(this._container, 'leaflet-control-geocoder-expanded');
 			L.DomUtil.addClass(this._form, 'leaflet-control-display-inline');
-			L.DomUtil.addClass(this._icon, 'gc-vicon-remove');
+			L.DomUtil.removeClass(this._icon, 'fa-search');
+			L.DomUtil.addClass(this._icon, 'fa-times');
 			this._input.select();
 		},
 
 		_collapse: function () {
 			L.DomUtil.removeClass(this._form, 'leaflet-control-display-inline');
-            L.DomUtil.removeClass(this._icon, 'gc-vicon-remove');
+            L.DomUtil.addClass(this._icon, 'fa-search');
+            L.DomUtil.removeClass(this._icon, 'fa-times');
 
 			this._container.className = this._container.className.replace(' leaflet-control-geocoder-expanded', '');
 			L.DomUtil.addClass(this._alts, 'leaflet-control-geocoder-alternatives-minimized');
