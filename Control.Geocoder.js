@@ -311,8 +311,15 @@
 	L.Control.Geocoder.Google = L.Class.extend({
 
         onPlaceChanged: function() {
-            var place = this.autocomplete.getPlace();
-            //console.log(place);
+
+    		if (giscloud.ui.map.markers.length != 0){
+        		for (var i = 0; i < giscloud.ui.map.markers.length; i++) {
+        			giscloud.ui.map.markers[i].visible(false);
+        		}
+        	}
+
+            var place = this.autocomplete.getPlace(), marker = new giscloud.FlagMarker();
+            // console.log(place);
             // console.log(place.geometry.location);
 
             if (!place.geometry || !place.geometry.location) {
@@ -326,13 +333,18 @@
             Proj4js.transform(wgs84, giscloud.ui.map.projection, p);
             gcapp.gcmap.smartSetLocation({__xmin: p.x, __xmax: p.x, __ymin: p.y, __ymax: p.y});
 
-			var result = {
-				icon: null,
-				name: place.formatted_address,
-				//bbox: L.latLngBounds([y, x], [y, x]),
-				center: L.latLng(y, x)
-			};
-			this.parent.markGeocode(result);
+			// var result = {
+			// 	icon: null,
+			// 	name: place.formatted_address,
+			// 	//bbox: L.latLngBounds([y, x], [y, x]),
+			// 	center: L.latLng(y, x)
+			// };
+
+			//this.parent.markGeocode(result);
+
+			marker.position(new giscloud.LonLat(p.x, p.y)).content(place.formatted_address);
+			giscloud.ui.map.addMarker(marker);
+
         },
 
 		initialize: function(parentControl) {
