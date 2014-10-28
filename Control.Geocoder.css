@@ -37,7 +37,9 @@
 }
 
 
-.leaflet-control-geocoder-form input, .leaflet-control-geocoder-form ul, .leaflet-control-geocoder-error {
+.leaflet-control-geocoder-form input,
+.leaflet-control-geocoder-form ul,
+.leaflet-control-geocoder-error {
 	border: 0;
 	color: transparent;
 	background: white;
@@ -94,6 +96,11 @@
 	padding-left: 4px;
 	padding-right: 0px;
 	color: #000;
+
+    height: 18px;
+    line-height: 16px;
+    font-size: 16px;
+    border: none;
 
     box-shadow: none;
     -webkit-box-shadow: none;

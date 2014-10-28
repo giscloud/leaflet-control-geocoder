@@ -42,12 +42,35 @@
             }
 		},
 
+		searchOption: function (e) {
+            if ( this._search_options.find('.sr-giscloud').hasClass('active') ) {
+                this.gc_input.show().first().focus();
+                this.go_input.hide();
+            } else {
+                this.go_input.show();
+                this.gc_input.hide();
+            }
+        },
+
 		onAdd: function (map) {
 			var className = 'leaflet-control-geocoder',
 			    container = L.DomUtil.create('div', className),
 				icon = this._icon = L.DomUtil.create('div', 'leaflet-control-geocoder-icon fa fa-search', container),
 			    form = this._form = L.DomUtil.create('form', className + '-form', container),
-			    input;
+			    input, that = this;
+
+            var lb = '<div class="search-options btn-group" >';
+            lb += '    <button type="button" class="sr-giscloud btn btn-xs btn-default active">GIS Cloud</button>';
+            lb += '    <button type="button" class="sr-google btn btn-xs btn-default">Google Maps</button>';
+            lb += '</div>';
+            this._search_options = lb = $(lb).hide().appendTo(container);
+            this._search_options.find('.btn').click(function(e) {
+                lb.find('.btn').removeClass('active');
+                $(e.target).addClass('active');
+                that.searchOption();
+            });
+
+            this.gc_input = $("<input/>").attr("type", "text").hide().appendTo(container);
 
 			this._map = map;
 			this._container = container;
@@ -55,6 +78,7 @@
 			input.id = 'leaflet_geocoder_input';
 			input.type = 'text';
 			input.className = 'leaflet-geocoder-input';
+            this.go_input = $(input).hide();
 
 			L.DomEvent.addListener(input, 'keydown', this._keydown, this);
 			//L.DomEvent.addListener(input, 'onpaste', this._clearResults, this);
@@ -157,6 +181,8 @@
 			L.DomUtil.addClass(this._form, 'leaflet-control-display-inline');
 			L.DomUtil.removeClass(this._icon, 'fa-search');
 			L.DomUtil.addClass(this._icon, 'fa-times');
+            this._search_options.show();
+            this.searchOption();
 			this._input.select();
 		},
 
@@ -164,6 +190,10 @@
 			L.DomUtil.removeClass(this._form, 'leaflet-control-display-inline');
             L.DomUtil.addClass(this._icon, 'fa-search');
             L.DomUtil.removeClass(this._icon, 'fa-times');
+
+            this._search_options.hide();
+            this.gc_input.hide();
+            this.go_input.hide();
 
 			this._container.className = this._container.className.replace(' leaflet-control-geocoder-expanded', '');
 			L.DomUtil.addClass(this._alts, 'leaflet-control-geocoder-alternatives-minimized');
